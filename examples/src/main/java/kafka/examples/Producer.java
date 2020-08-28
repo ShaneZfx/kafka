@@ -35,6 +35,7 @@ public class Producer extends Thread {
     private int numRecords;
     private final CountDownLatch latch;
 
+    // final 修饰变量的含义
     public Producer(final String topic,
                     final Boolean isAsync,
                     final String transactionalId,
@@ -73,15 +74,15 @@ public class Producer extends Thread {
         while (recordsSent < numRecords) {
             String messageStr = "Message_" + messageKey;
             long startTime = System.currentTimeMillis();
-            if (isAsync) { // Send asynchronously
-                producer.send(new ProducerRecord<>(topic,
-                    messageKey,
-                    messageStr), new DemoCallBack(startTime, messageKey, messageStr));
-            } else { // Send synchronously
+            if (isAsync) {
+                // 异步发送
+                producer.send(new ProducerRecord<>(topic, messageKey, messageStr),
+                        // 注册回调
+                        new DemoCallBack(startTime, messageKey, messageStr));
+            } else {
+                // 同步发送
                 try {
-                    producer.send(new ProducerRecord<>(topic,
-                        messageKey,
-                        messageStr)).get();
+                    producer.send(new ProducerRecord<>(topic, messageKey, messageStr)).get();
                     System.out.println("Sent message: (" + messageKey + ", " + messageStr + ")");
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
